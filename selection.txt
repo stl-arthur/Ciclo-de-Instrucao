@@ -1,0 +1,110 @@
+# Dados
+5 # N
+1 # constante 1
+0 # i
+0 # j
+0 # min
+0 # temp
+
+0x110 # base do vetor
+
+10
+3
+7
+2
+8
+
+# Ponteiros auxiliares
+0 # addr_i
+0 # addr_j
+0 # addr_min
+# Endereço inicial
+0xA0
+
+# i = 0
+LOAD M(0x101)
+SUB M(0x101)
+STOR M(0x102)
+
+# LOOP_I
+LOAD M(0x102)
+SUB M(0x100)
+JUMP+ M(0xF0)
+
+# min = i
+LOAD M(0x102)
+STOR M(0x104)
+
+# j = i + 1
+LOAD M(0x102)
+ADD M(0x101)
+STOR M(0x103)
+
+# LOOP_J
+LOAD M(0x103)
+SUB M(0x100)
+JUMP+ M(0xD0)
+
+# addr_j = base + j
+LOAD M(0x106)
+ADD M(0x103)
+STOR M(0x120)
+
+# addr_min = base + min
+LOAD M(0x106)
+ADD M(0x104)
+STOR M(0x121)
+
+# A[j]
+LOADI M(0x120)
+STOR M(0x130)
+
+# A[min]
+LOADI M(0x121)
+STOR M(0x131)
+
+# comparação
+LOAD M(0x130)
+SUB M(0x131)
+JUMP+ M(0xC0)
+
+# min = j
+LOAD M(0x103)
+STOR M(0x104)
+
+# NEXT_J
+LOAD M(0x103)
+ADD M(0x101)
+STOR M(0x103)
+JUMP M(0xAA)
+
+# TROCA
+# addr_i = base + i
+LOAD M(0x106)
+ADD M(0x102)
+STOR M(0x122)
+
+# addr_min = base + min
+LOAD M(0x106)
+ADD M(0x104)
+STOR M(0x123)
+
+# temp = A[i]
+LOADI M(0x122)
+STOR M(0x105)
+
+# A[i] = A[min]
+LOADI M(0x123)
+STORI M(0x122)
+
+# A[min] = temp
+LOAD M(0x105)
+STORI M(0x123)
+
+# i++
+LOAD M(0x102)
+ADD M(0x101)
+STOR M(0x102)
+JUMP M(0xA3)
+
+# FIM
