@@ -26,7 +26,6 @@ def main():
         linha = arq.readline()
         print("linha:", linha)
         arq.close()
-    print("testando git")
 
 
 if __name__ == "__main__":
