@@ -25,6 +25,7 @@ def main():
     with open(arquivo, 'r') as arq:
         linha = arq.readline()
         print("linha:", linha)
+        print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
         arq.close()
 
 
