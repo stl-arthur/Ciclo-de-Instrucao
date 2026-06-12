@@ -1,2 +1,1 @@
-def oi():
-    print("Oi")
+
