@@ -69,7 +69,7 @@ STOR M(0x121)
 
 # se marcados[primo] == 0, pula
 LOADI M(0x121)
-JUMZ M(0xCD)
+JUMP M(0xCD)
 
 # multiplo = primo²
 LOAD M(0x105)
