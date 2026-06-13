@@ -1,3 +1,5 @@
+import execute_decode
+
 # ==================== Vetor de Memória, Armazena os dados e instruções ====================
 MEM = [None] * 256
 
@@ -135,7 +137,8 @@ def main():
 
         cicloDeBusca()
 
-        # DECODE + EXECUTE (Cintia)
+        opcode, operando, modo = execute_decode.decodificar(IR)
+        execute_decode.executar(opcode, operando, modo)
 
         mostraRegistradores()
         input("Pressione ENTER para continuar")
