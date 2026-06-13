@@ -6,20 +6,6 @@ DIRETO = 1 # M(endereco)          ex: LOAD M(0x101)
 MAX_INT =  549755813887   # 2^39 - 1
 MIN_INT = -549755813888   # -2^39
 
-MEM = [0] * 256
-PC = 0
-IR = -1
-MAR = -1
-MBR = -1
-AC = -1
-A = -1
-B = -1
-M = -1
-R = -1
-C = -1
-N = -1
-Z = -1
-
 # Instrução: LOAD M(0x101)
 # LOAD => opcode          0x101 => operando
 
