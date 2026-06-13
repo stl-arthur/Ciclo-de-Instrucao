@@ -1,3 +1,5 @@
+import ciclo
+
 # CONSTANTES DOS MODOS DE ENDEREÇAMENTO
 IMEDIATO = 0 # valor literal      ex: ADD #5
 DIRETO = 1 # M(endereco)          ex: LOAD M(0x101)

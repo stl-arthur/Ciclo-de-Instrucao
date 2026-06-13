@@ -11,7 +11,22 @@
 
 # Vetor marcados[0..15]
 0x110
-0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0 
+0
 
 # Ponteiros auxiliares
 0           # addr

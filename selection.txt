@@ -94,8 +94,8 @@ LOADI M(0x122)
 STOR M(0x105)
 
 # A[i] = A[min]
-LOAD I M(0x123)
-STOR I M(0x122)
+LOADI M(0x123)
+STORI M(0x122)
 
 # A[min] = temp
 LOAD M(0x105)
