@@ -83,7 +83,7 @@ def decodificar(IR) -> None:
         modo = determinar_modo(operando_str)
         if modo == DIRETO:
             conteudo = operando[2:-1]
-            if conteudo[0:1] == "0x":
+            if conteudo.startswith('0x') or conteudo.startswith('0X'):
                 operando = int(conteudo, 16)
             else:
                 operando = int(conteudo)
