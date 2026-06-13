@@ -82,7 +82,7 @@ def decodificar(IR) -> None:
         operando_str = partes[1]
         modo = determinar_modo(operando_str)
         if modo == DIRETO:
-            conteudo = operando[2:-1]
+            conteudo = operando_str[2:-1]
             if conteudo.startswith('0x') or conteudo.startswith('0X'):
                 operando = int(conteudo, 16)
             else:
@@ -111,6 +111,7 @@ def executar(opcode: int, operando, modo) -> None:
         valor = buscar_valor(operando, modo)
         resultado = AC + valor
         C = verifivcar_overflow(resultado)
+        AC = resultado
         atualizar_flags(AC)
 
     elif opcode == "SUB":
