@@ -1,3 +1,23 @@
+# ==================== Vetor de Memória, Armazena os dados e instruções ====================
+MEM = [None] * 256
+
+# ==================== Registradores de Uso Geral ====================
+A = None
+B = None
+
+# ==================== Registradores Especiais ====================
+PC = 0
+IR = None
+MAR = None
+MBR = None
+AC = None
+M = None
+R = None
+C = None
+N = None
+Z = None
+
+# ============================ DECODE E EXECUTE =======================================
 # CONSTANTES DOS MODOS DE ENDEREÇAMENTO
 IMEDIATO = 0 # valor literal      ex: ADD #5
 DIRETO = 1 # M(endereco)          ex: LOAD M(0x101)
@@ -54,7 +74,7 @@ def verifivcar_overflow(resultado) -> bool:
         return True
     return False
 
-################### DECODE / EXECUTE #######################
+################### DECODE / EXECUTE ######################
 
 def decodificar(IR) -> None:
     '''Decodifica a instrução do IR em opcode, operando e modo'''
@@ -145,27 +165,6 @@ def executar(opcode: int, operando, modo) -> None:
 
     else:
         print("opcode inválido: " + opcode)
-
-
-# ==================== Vetor de Memória, Armazena os dados e instruções ====================
-MEM = [None] * 256
-
-# ==================== Registradores de Uso Geral ====================
-A = None
-B = None
-
-# ==================== Registradores Especiais ====================
-PC = 0
-IR = None
-MAR = None
-MBR = None
-AC = None
-M = None
-R = None
-C = None
-N = None
-Z = None
-
 
 # ======================================== OPERAÇÕES ========================================
 
