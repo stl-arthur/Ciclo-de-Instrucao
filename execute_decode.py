@@ -88,7 +88,7 @@ def decodificar(IR) -> None:
             else:
                 operando = int(conteudo)
         elif modo == IMEDIATO:
-            operando = int(operando[1:])
+            operando = int(operando_str[1:])
 
     return opcode, operando, modo
 
