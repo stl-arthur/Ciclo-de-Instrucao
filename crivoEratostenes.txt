@@ -1,0 +1,106 @@
+# Dados
+15          # N
+1           # constante 1
+2           # constante 2
+0           # primo
+0           # multiplo
+0           # temp (primo²)
+272         # base do vetor (0x110)
+0           # constante 0
+0           # i
+
+# Vetor marcados[0..15]
+0x110
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+# Ponteiros auxiliares
+0           # addr
+0           # addr_primo
+
+# Endereço inicial
+0xA0
+
+# i = 0
+LOAD M(0x107)
+SUB M(0x107)
+STOR M(0x108)
+
+# LOOP_INIT
+LOAD M(0x108)
+SUB M(0x100)
+JUMP+ M(0xAF)
+
+# addr = base + i
+LOAD M(0x106)
+ADD M(0x108)
+STOR M(0x120)
+
+# marcados[i] = 1
+LOAD M(0x101)
+STORI M(0x120)
+
+# i = i + 1
+LOAD M(0x108)
+ADD M(0x101)
+STOR M(0x108)
+JUMP M(0xA3)
+
+# FIM_INIT
+LOAD M(0x107)
+STOR M(0x110)
+LOAD M(0x107)
+STOR M(0x111)
+
+# primo = 2
+LOAD M(0x102)
+STOR M(0x103)
+
+# LOOP_PRIMO
+LOAD M(0x103)
+MULT M(0x103)
+STOR M(0x105)
+SUB M(0x100)
+JUMP+ M(0xD1)
+
+# addr_primo = base + primo
+LOAD M(0x106)
+ADD M(0x103)
+STOR M(0x121)
+
+# se marcados[primo] == 0, pula
+LOADI M(0x121)
+JUMZ M(0xCD)
+
+# multiplo = primo²
+LOAD M(0x105)
+STOR M(0x104)
+
+# LOOP_MULT
+LOAD M(0x104)
+SUB M(0x100)
+JUMP+ M(0xCD)
+
+# addr = base + multiplo
+LOAD M(0x106)
+ADD M(0x104)
+STOR M(0x120)
+
+# marcados[multiplo] = 0
+LOAD M(0x107)
+STORI M(0x120)
+
+# multiplo = multiplo + primo
+LOAD M(0x104)
+ADD M(0x103)
+STOR M(0x104)
+JUMP M(0xC1)
+
+# NEXT_PRIMO
+LOAD M(0x103)
+ADD M(0x101)
+STOR M(0x103)
+JUMP M(0xB5)
+
+# FIM
+LOAD M(0x107)
+JUMP M(0xD2)
