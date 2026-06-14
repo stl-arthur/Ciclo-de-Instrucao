@@ -1,121 +1,143 @@
-# Dados
-15          # N
-1           # constante 1
-2           # constante 2
-0           # primo
-0           # multiplo
-0           # temp (primo²)
-272         # base do vetor (0x110)
-0           # constante 0
-0           # i
+# Crivo de Eratostenes: encontra todos os primos de 0 a N-1 (N=15)
+# marcados[i] = 1 -> primo | marcados[i] = 0 -> composto
+#
+# Mapa de memoria (256 posicoes, 0x00 a 0xFF):
+#   0x00 = N (15)
+#   0x01 = constante 1
+#   0x02 = constante 2
+#   0x03 = primo (variavel do laco externo)
+#   0x04 = multiplo
+#   0x05 = temp (primo ao quadrado)
+#   0x06 = base do vetor (valor = 16 = 0x10)
+#   0x07 = constante 0
+#   0x08 = i (contador do loop de inicializacao)
+#   0x09..0x0F = zeros (padding)
+#   0x10..0x1F = marcados[0..15]
+#   0x20 = addr (ponteiro auxiliar)
+#   0x21 = addr_primo (ponteiro auxiliar)
+# Instrucoes: 0xA0 em diante
+# 
 
-# Vetor marcados[0..15]
-0x110
-0
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0 
-0
+# Dados (posicoes 0x00 a 0x21 = indices 0 a 33)
+15  # 0x00: N
+1   # 0x01: constante 1
+2   # 0x02: constante 2
+0   # 0x03: primo
+0   # 0x04: multiplo
+0   # 0x05: temp (primo^2)
+16  # 0x06: base do vetor = 0x10 = 16
+0   # 0x07: constante 0
+0   # 0x08: i
+0   # 0x09: padding
+0   # 0x0A: padding
+0   # 0x0B: padding
+0   # 0x0C: padding
+0   # 0x0D: padding
+0   # 0x0E: padding
+0   # 0x0F: padding
+0   # 0x10: marcados[0] 
+0   # 0x11: marcados[1]
+0   # 0x12: marcados[2]
+0   # 0x13: marcados[3]
+0   # 0x14: marcados[4]
+0   # 0x15: marcados[5]
+0   # 0x16: marcados[6]
+0   # 0x17: marcados[7]
+0   # 0x18: marcados[8]
+0   # 0x19: marcados[9]
+0   # 0x1A: marcados[10]
+0   # 0x1B: marcados[11]
+0   # 0x1C: marcados[12]
+0   # 0x1D: marcados[13]
+0   # 0x1E: marcados[14]
+0   # 0x1F: marcados[15]
+0   # 0x20: addr
+0   # 0x21: addr_primo
 
-# Ponteiros auxiliares
-0           # addr
-0           # addr_primo
-
-# Endereço inicial
+# Endereco inicial das instrucoes
 0xA0
 
 # i = 0
-LOAD M(0x107)
-SUB M(0x107)
-STOR M(0x108)
+LOAD M(0x07)   # AC = 0
+SUB M(0x07)    # AC = 0
+STOR M(0x08)   # i = 0
 
-# LOOP_INIT
-LOAD M(0x108)
-SUB M(0x100)
-JUMP+ M(0xAF)
+# LOOP_INIT (0xA3): marcados[i] = 1 para todo i de 0 a N-1
+LOAD M(0x08)   # AC = i
+SUB M(0x00)    # AC = i - N
+JUMP+ M(0xAF)  # se i >= N (AC >= 0): FIM_INIT
 
 # addr = base + i
-LOAD M(0x106)
-ADD M(0x108)
-STOR M(0x120)
+LOAD M(0x06)   # AC = base
+ADD M(0x08)    # AC = base + i
+STOR M(0x20)   # addr = base + i
 
 # marcados[i] = 1
-LOAD M(0x101)
-STORI M(0x120)
+LOAD M(0x01)   # AC = 1
+STORI M(0x20)  # MEM[addr] = 1
 
 # i = i + 1
-LOAD M(0x108)
-ADD M(0x101)
-STOR M(0x108)
-JUMP M(0xA3)
+LOAD M(0x08)   # AC = i
+ADD M(0x01)    # AC = i + 1
+STOR M(0x08)   # i = i + 1
+JUMP M(0xA3)   # volta ao LOOP_INIT
 
-# FIM_INIT
-LOAD M(0x107)
-STOR M(0x110)
-LOAD M(0x107)
-STOR M(0x111)
+# FIM_INIT (0xAF): marcar 0 e 1 como nao primos
+LOAD M(0x07)   # AC = 0
+STOR M(0x10)   # marcados[0] = 0  (0 nao e primo)
+LOAD M(0x07)   # AC = 0
+STOR M(0x11)   # marcados[1] = 0  (1 nao e primo)
 
 # primo = 2
-LOAD M(0x102)
-STOR M(0x103)
+LOAD M(0x02)   # AC = 2
+STOR M(0x03)   # primo = 2
 
-# LOOP_PRIMO
-LOAD M(0x103)
-MULT M(0x103)
-STOR M(0x105)
-SUB M(0x100)
-JUMP+ M(0xD1)
+# LOOP_PRIMO (0xB5): para cada primo candidato
+LOAD M(0x03)   # AC = primo
+MULT M(0x03)   # AC = primo * primo
+STOR M(0x05)   # temp = primo^2
+SUB M(0x00)    # AC = primo^2 - N
+JUMP+ M(0xF0)  # se primo^2 >= N (AC >= 0): FIM
 
 # addr_primo = base + primo
-LOAD M(0x106)
-ADD M(0x103)
-STOR M(0x121)
+LOAD M(0x06)   # AC = base
+ADD M(0x03)    # AC = base + primo
+STOR M(0x21)   # addr_primo = base + primo
 
-# se marcados[primo] == 0, pula
-LOADI M(0x121)
-JUMP M(0xCD)
+# verificar se marcados[primo] == 1 (primo verdadeiro)
+LOADI M(0x21)  # AC = marcados[primo]
+SUB M(0x01)    # AC = marcados[primo] - 1
+JUMP+ M(0xC1)  # se marcados[primo] >= 1 (AC >= 0, era 1): marca multiplos
+JUMP M(0xCF)   # senao (marcados[primo] == 0, composto): NEXT_PRIMO
 
-# multiplo = primo²
-LOAD M(0x105)
-STOR M(0x104)
+# multiplo = primo^2 (0xC1)
+LOAD M(0x05)   # AC = primo^2
+STOR M(0x04)   # multiplo = primo^2
 
-# LOOP_MULT
-LOAD M(0x104)
-SUB M(0x100)
-JUMP+ M(0xCD)
+# LOOP_MULT (0xC3): risca os multiplos do primo
+LOAD M(0x04)   # AC = multiplo
+SUB M(0x00)    # AC = multiplo - N
+JUMP+ M(0xCF)  # se multiplo >= N (AC >= 0): NEXT_PRIMO
 
 # addr = base + multiplo
-LOAD M(0x106)
-ADD M(0x104)
-STOR M(0x120)
+LOAD M(0x06)   # AC = base
+ADD M(0x04)    # AC = base + multiplo
+STOR M(0x20)   # addr = base + multiplo
 
 # marcados[multiplo] = 0
-LOAD M(0x107)
-STORI M(0x120)
+LOAD M(0x07)   # AC = 0
+STORI M(0x20)  # MEM[addr] = 0
 
 # multiplo = multiplo + primo
-LOAD M(0x104)
-ADD M(0x103)
-STOR M(0x104)
-JUMP M(0xC1)
+LOAD M(0x04)   # AC = multiplo
+ADD M(0x03)    # AC = multiplo + primo
+STOR M(0x04)   # multiplo = multiplo + primo
+JUMP M(0xC3)   # volta ao LOOP_MULT
 
-# NEXT_PRIMO
-LOAD M(0x103)
-ADD M(0x101)
-STOR M(0x103)
-JUMP M(0xB5)
+# NEXT_PRIMO (0xCF): incrementa primo e volta ao LOOP_PRIMO
+LOAD M(0x03)   # AC = primo
+ADD M(0x01)    # AC = primo + 1
+STOR M(0x03)   # primo = primo + 1
+JUMP M(0xB5)   # volta ao LOOP_PRIMO
 
 # FIM
-LOAD M(0x107)
-JUMP M(0xD2)
