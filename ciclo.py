@@ -1,5 +1,5 @@
 # ==================== Vetor de Memória, Armazena os dados e instruções ====================
-MEM = [None] * 256
+MEM = [None] * 512
 
 # ==================== Registradores de Uso Geral ====================
 A = None
@@ -29,7 +29,7 @@ MIN_INT = -549755813888   # -2^39
 # Instrução: LOAD M(0x101)
 # LOAD => opcode          0x101 => operando
 
-#################### FUNÇÕES AUXILIARES #############################
+#----------------------- FUNÇÕES AUXILIARES ------------------------------
 def determinar_modo(operando) -> None|int:
     '''Determina o modo de endereçamento'''
     
