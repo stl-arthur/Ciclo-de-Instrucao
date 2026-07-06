@@ -217,7 +217,9 @@ def executar(opcode, operando, modo):
     -1
  
     >>> executar('DIV', 0, IMEDIATO)
-    Erro: divisao por zero!
+    Traceback (most recent call last):
+        ...
+    ValueError: Divisao por zero!
  
     >>> executar('JUMP', 0xB5, DIRETO)
     >>> m.PC
@@ -543,3 +545,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
