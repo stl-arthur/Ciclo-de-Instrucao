@@ -27,6 +27,16 @@ MAX_INT =  549755813887   #  2^39 - 1
 MIN_INT = -549755813888   # -2^39
 
 # ======================== FUNCOES AUXILIARES ========================
+def eh_numero(linha):
+    '''Verifica se a linha representa um numero (decimal ou hexadecimal)'''
+    try:
+        if linha.lower().startswith('0x'):
+            int(linha, 16)
+        else:
+            int(linha)
+        return True
+    except ValueError:
+        return False
 
 def determinar_modo(operando_str):
     '''Determina o modo de enderecamento a partir da string do operando'''
@@ -108,7 +118,11 @@ def executar(opcode, operando, modo):
 
     elif opcode == 'STOR':
         # Armazena AC na posicao de memoria indicada (sempre direto)
-        MEM[operando] = AC
+        # Armazena AC na posicao de memoria indicada (sempre direto)
+        MAR = operando
+        MBR = AC
+        MEM[MAR] = MBR
+
 
     elif opcode == 'ADD':
         valor = buscar_valor(operando, modo)
@@ -134,9 +148,18 @@ def executar(opcode, operando, modo):
 
     elif opcode == 'DIV':
         valor = buscar_valor(operando, modo)
-        R = AC % valor     # resto
-        AC = AC // valor   # quociente
-        atualizar_flags(AC)
+        if valor == 0:
+            raise ValueError('Divisao por zero!')
+        else:
+            # Divisao inteira truncada (trunca em direcao ao zero),
+            # em vez do // do Python que arredonda para baixo.
+            quociente = abs(AC) // abs(valor)
+            if (AC < 0) != (valor < 0):
+                quociente = -quociente
+            resto = AC - (quociente * valor) 
+            AC = quociente
+            R  = resto
+            atualizar_flags(AC)
 
     elif opcode == 'JUMP':
         # Desvio incondicional: PC recebe o operando
@@ -160,8 +183,10 @@ def executar(opcode, operando, modo):
         # Enderecamento indireto para escrita
         MAR = operando
         MBR = MEM[MAR]   # MBR = endereco intermediario
-        MEM[MBR] = AC    # armazena AC no endereco apontado
-
+        MAR = MBR        # MAR = endereco final
+        MBR = AC         # MBR = valor a ser armazenado
+        MEM[MAR] = MBR   # armazena no endereco apontado
+ 
     else:
         print('Opcode invalido: ' + opcode)
 
@@ -189,7 +214,7 @@ def carregar_arquivo(arquivo):
     linhas_limpas = []
     for l in linhas:
         sem_comentario = l.split('#')[0]
-        sem_espaco     = sem_comentario.strip()
+        sem_espaco = sem_comentario.strip()
         linhas_limpas.append(sem_espaco)
 
     # Remove linhas vazias
@@ -202,16 +227,22 @@ def carregar_arquivo(arquivo):
     end_inicial = None
     ind_inicio_instrucao = None
 
+    ind_inicio_instrucao = None
     for i in range(len(linhas_finais)):
-        linha = linhas_finais[i]
-        if linha.startswith('0x') or linha.startswith('0X'):
-            end_inicial = int(linha, 16)
-            ind_inicio_instrucao = i + 1
+        if not eh_numero(linhas_finais[i]):
+            ind_inicio_instrucao = i
             break
-
-    if end_inicial is None:
+ 
+    if ind_inicio_instrucao is None or ind_inicio_instrucao == 0:
         print('Erro: Nao foi encontrado um endereco inicial no arquivo!')
         return False
+ 
+    # O endereco inicial e a linha numerica IMEDIATAMENTE ANTES da primeira
+    linha_endereco = linhas_finais[ind_inicio_instrucao - 1]
+    if linha_endereco.lower().startswith('0x'):
+        end_inicial = int(linha_endereco, 16)
+    else:
+        end_inicial = int(linha_endereco)
 
     # Carrega dados em MEM[0], MEM[1], ...
     dados = linhas_finais[:ind_inicio_instrucao - 1]
@@ -238,12 +269,14 @@ def mostrar_registradores():
     else:
         mar_str = 'None'
 
+    LARGURA = 14
+
     print('==================== Registradores ====================')
-    print(' PC  = 0x' + format(PC, '02X') + '    IR  = ' + str(IR))
-    print(' MAR = ' + mar_str + '    MBR = ' + str(MBR))
-    print(' AC  = ' + str(AC) + '    M   = ' + str(M))
-    print(' R   = ' + str(R)  + '    C   = ' + str(C))
-    print(' N   = ' + str(N)  + '    Z   = ' + str(Z))
+    print(' PC  = ' + ('0x' + format(PC, '02X')).ljust(LARGURA) + 'IR  = ' + str(IR))
+    print(' MAR = ' + mar_str.ljust(LARGURA)                    + 'MBR = ' + str(MBR))
+    print(' AC  = ' + str(AC).ljust(LARGURA)                    + 'M   = ' + str(M))
+    print(' R   = ' + str(R).ljust(LARGURA)                     + 'C   = ' + str(C))
+    print(' N   = ' + str(N).ljust(LARGURA)                     + 'Z   = ' + str(Z))
     print('=======================================================\n')
 
 
@@ -256,7 +289,7 @@ def ciclo_de_busca():
     IR  = MBR
     PC  = PC + 1
 
-#LACO PRINCIPAL
+# LACO PRINCIPAL
 
 def main():
     arquivo = input('Qual arquivo a ser executado?\n>>> ')
