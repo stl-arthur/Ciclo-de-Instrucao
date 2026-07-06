@@ -1,0 +1,43 @@
+# MDC (Maximo Divisor Comum) - Algoritmo de Euclides por subtracao
+# Memoria: 256 posicoes (0x00 a 0xFF)
+#
+# Enquanto a != b: subtrai o menor do maior.
+# Quando a == b, esse valor e o MDC.
+#
+# Alem de JUMP e JUMP+, foi adicionada a
+# instrucao JUMPZ (desvia se Z=1), aproveitando o registrador Z
+# ja previsto na especificacao, para checar igualdade direto.
+
+
+# DADOS 
+48      # 0x00 - a
+18      # 0x01 - b
+
+# Endereco inicial  
+0xA0
+
+# LOOP: AC = a - b                     
+LOAD M(0x00)
+SUB M(0x01)
+
+# se a == b (AC = 0), acabou -> FIM          
+JUMPZ M(0xAA)
+
+# se a > b (AC > 0), vai para A_MAIOR           
+JUMP+ M(0xA8)
+
+# senao (a < b): b = b - a                     
+LOAD M(0x01)
+SUB M(0x00)
+STOR M(0x01)
+
+JUMP M(0xA0)
+# volta para LOOP                               
+
+# A_MAIOR: a = a - b (AC ja tem esse valor)      
+STOR M(0x00)
+
+JUMP M(0xA0)
+# volta para LOOP                                
+
+# FIM
