@@ -247,7 +247,11 @@ def carregar_arquivo(arquivo):
     # Carrega dados em MEM[0], MEM[1], ...
     dados = linhas_finais[:ind_inicio_instrucao - 1]
     for i in range(len(dados)):
-        MEM[i] = int(dados[i])
+        valor = dados[i]
+        if valor.lower().startswith('0x'):
+            MEM[i] = int(valor, 16)
+        else:
+            MEM[i] = int(valor)
 
     # Carrega instrucoes a partir do endereco inicial
     instrucoes = linhas_finais[ind_inicio_instrucao:]
