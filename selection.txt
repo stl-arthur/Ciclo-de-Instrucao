@@ -1,110 +1,112 @@
-# Dados
-5 # N
-1 # constante 1
-0 # i
-0 # j
-0 # min
-0 # temp
+# Memoria: 256 posicoes (0x00 a 0xFF)
+# Dados (endereços de 0x00 a 0x15)
+6       # 0x00 - N (quantidade de elementos do vetor)
+1       # 0x01 - constante 1
+0       # 0x02 - i
+0       # 0x03 - j
+0       # 0x04 - min
+0       # 0x05 - temp
+0x10    # 0x06 - base do vetor (aponta para 0x10)
+0       # 0x07 - addr_j
+0       # 0x08 - addr_min
+0       # 0x09 - addr_i
+0       # 0x0A - addr_min (uso na troca)
+0       # 0x0B - A[j]
+0       # 0x0C - A[min]
+1       # 0x10 - vetor[0]
+0       # 0x11 - vetor[1]
+3       # 0x12 - vetor[2]
+7       # 0x13 - vetor[3]
+2       # 0x14 - vetor[4]
+8       # 0x15 - vetor[5]
 
-0x110 # base do vetor
-
-10
-3
-7
-2
-8
-
-# Ponteiros auxiliares
-0 # addr_i
-0 # addr_j
-0 # addr_min
 # Endereço inicial
 0xA0
 
 # i = 0
-LOAD M(0x101)
-SUB M(0x101)
-STOR M(0x102)
+LOAD M(0x01)
+SUB M(0x01)
+STOR M(0x02)
 
 # LOOP_I
-LOAD M(0x102)
-SUB M(0x100)
-JUMP+ M(0xF0)
+LOAD M(0x02)
+SUB M(0x00)
+JUMP+ M(0xD1)
 
 # min = i
-LOAD M(0x102)
-STOR M(0x104)
+LOAD M(0x02)
+STOR M(0x04)
 
 # j = i + 1
-LOAD M(0x102)
-ADD M(0x101)
-STOR M(0x103)
+LOAD M(0x02)
+ADD M(0x01)
+STOR M(0x03)
 
 # LOOP_J
-LOAD M(0x103)
-SUB M(0x100)
-JUMP+ M(0xD0)
+LOAD M(0x03)
+SUB M(0x00)
+JUMP+ M(0xC1)
 
 # addr_j = base + j
-LOAD M(0x106)
-ADD M(0x103)
-STOR M(0x120)
+LOAD M(0x06)
+ADD M(0x03)
+STOR M(0x07)
 
 # addr_min = base + min
-LOAD M(0x106)
-ADD M(0x104)
-STOR M(0x121)
+LOAD M(0x06)
+ADD M(0x04)
+STOR M(0x08)
 
 # A[j]
-LOADI M(0x120)
-STOR M(0x130)
+LOADI M(0x07)
+STOR M(0x0B)
 
 # A[min]
-LOADI M(0x121)
-STOR M(0x131)
+LOADI M(0x08)
+STOR M(0x0C)
 
 # comparação
-LOAD M(0x130)
-SUB M(0x131)
-JUMP+ M(0xC0)
+LOAD M(0x0B)
+SUB M(0x0C)
+JUMP+ M(0xBD)
 
 # min = j
-LOAD M(0x103)
-STOR M(0x104)
+LOAD M(0x03)
+STOR M(0x04)
 
 # NEXT_J
-LOAD M(0x103)
-ADD M(0x101)
-STOR M(0x103)
-JUMP M(0xAA)
+LOAD M(0x03)
+ADD M(0x01)
+STOR M(0x03)
+JUMP M(0xAB)
 
 # TROCA
 # addr_i = base + i
-LOAD M(0x106)
-ADD M(0x102)
-STOR M(0x122)
+LOAD M(0x06)
+ADD M(0x02)
+STOR M(0x09)
 
 # addr_min = base + min
-LOAD M(0x106)
-ADD M(0x104)
-STOR M(0x123)
+LOAD M(0x06)
+ADD M(0x04)
+STOR M(0x0A)
 
 # temp = A[i]
-LOADI M(0x122)
-STOR M(0x105)
+LOADI M(0x09)
+STOR M(0x05)
 
 # A[i] = A[min]
-LOADI M(0x123)
-STORI M(0x122)
+LOADI M(0x0A)
+STORI M(0x09)
 
 # A[min] = temp
-LOAD M(0x105)
-STORI M(0x123)
+LOAD M(0x05)
+STORI M(0x0A)
 
 # i++
-LOAD M(0x102)
-ADD M(0x101)
-STOR M(0x102)
+LOAD M(0x02)
+ADD M(0x01)
+STOR M(0x02)
 JUMP M(0xA3)
 
 # FIM
