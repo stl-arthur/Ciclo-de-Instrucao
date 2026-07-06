@@ -28,7 +28,17 @@ MIN_INT = -549755813888   # -2^39
 
 # ======================== FUNCOES AUXILIARES ========================
 def eh_numero(linha):
-    '''Verifica se a linha representa um numero (decimal ou hexadecimal)'''
+    '''Verifica se a linha representa um numero (decimal ou hexadecimal)
+ 
+    >>> eh_numero("15")
+    True
+    >>> eh_numero("0x110")
+    True
+    >>> eh_numero("-42")
+    True
+    >>> eh_numero("LOAD M(0x07)")
+    False
+    ''' 
     try:
         if linha.lower().startswith('0x'):
             int(linha, 16)
@@ -39,7 +49,15 @@ def eh_numero(linha):
         return False
 
 def determinar_modo(operando_str):
-    '''Determina o modo de enderecamento a partir da string do operando'''
+    '''Determina o modo de enderecamento a partir da string do operando
+ 
+    >>> determinar_modo("M(0x07)") == DIRETO
+    True
+    >>> determinar_modo("#5") == IMEDIATO
+    True
+    >>> determinar_modo("X(0x07)")
+    Modo invalido: X(0x07)
+    '''   
     if operando_str[0] == 'M':
         return DIRETO
     elif operando_str[0] == '#':
@@ -49,7 +67,19 @@ def determinar_modo(operando_str):
         return None
 
 def buscar_valor(operando, modo):
-    '''Busca o valor do operando conforme o modo de enderecamento'''
+    '''Busca o valor do operando conforme o modo de enderecamento
+ 
+    >>> import sys; m = sys.modules[__name__]
+    >>> m.MEM[0x07] = 15
+    >>> buscar_valor(0x07, DIRETO)
+    15
+    >>> m.MAR
+    7
+    >>> m.MBR
+    15
+    >>> buscar_valor(5, IMEDIATO)
+    5
+    '''
     global MAR, MBR
 
     if modo == IMEDIATO:
@@ -60,7 +90,25 @@ def buscar_valor(operando, modo):
         return MBR
 
 def atualizar_flags(valor):
-    '''Atualiza as flags N e Z conforme o valor resultante'''
+    '''Atualiza as flags N e Z conforme o valor resultante
+ 
+    >>> import sys; m = sys.modules[__name__]
+    >>> atualizar_flags(0)
+    >>> m.Z
+    1
+    >>> m.N
+    0
+    >>> atualizar_flags(-3)
+    >>> m.Z
+    0
+    >>> m.N
+    1
+    >>> atualizar_flags(7)
+    >>> m.Z
+    0
+    >>> m.N
+    0
+    '''    
     global Z, N
 
     if valor == 0:
@@ -74,7 +122,15 @@ def atualizar_flags(valor):
         N = 0
 
 def verificar_overflow(resultado):
-    '''Retorna True se houve overflow, False caso contrario'''
+    '''Retorna True se houve overflow, False caso contrario
+ 
+    >>> verificar_overflow(100)
+    False
+    >>> verificar_overflow(MAX_INT + 1)
+    True
+    >>> verificar_overflow(MIN_INT - 1)
+    True
+    '''
     if resultado > MAX_INT or resultado < MIN_INT:
         return True
     return False
@@ -82,7 +138,15 @@ def verificar_overflow(resultado):
 # ======================== DECODE / EXECUTE ========================
 
 def decodificar(IR):
-    '''Decodifica a instrucao do IR em opcode, operando e modo'''
+    '''Decodifica a instrucao do IR em opcode, operando e modo
+ 
+    >>> decodificar("LOAD M(0x07)")
+    ('LOAD', 7, 1)
+    >>> decodificar("ADD #5")
+    ('ADD', 5, 0)
+    >>> decodificar("JUMP M(0xAF)")
+    ('JUMP', 175, 1)
+    '''
     partes = IR.split()       # ex: ["LOAD", "M(0x101)"]
     opcode = partes[0]        # "LOAD"
 
@@ -108,7 +172,90 @@ def decodificar(IR):
 
 
 def executar(opcode, operando, modo):
-    '''Executa a instrucao decodificada'''
+    '''Executa a instrucao decodificada
+ 
+    >>> import sys; m = sys.modules[__name__]
+ 
+    >>> m.MEM[0x07] = 15
+    >>> executar('LOAD', 0x07, DIRETO)
+    >>> m.AC
+    15
+ 
+    >>> m.AC = 20
+    >>> executar('STOR', 0x08, DIRETO)
+    >>> m.MEM[0x08]
+    20
+ 
+    >>> m.AC = 10
+    >>> m.MEM[0x05] = 4
+    >>> executar('ADD', 0x05, DIRETO)
+    >>> m.AC
+    14
+ 
+    >>> m.AC = 10
+    >>> executar('SUB', 3, IMEDIATO)
+    >>> m.AC
+    7
+ 
+    >>> m.AC = 6
+    >>> executar('MULT', 7, IMEDIATO)
+    >>> m.AC
+    42
+ 
+    >>> m.AC = 7
+    >>> executar('DIV', 2, IMEDIATO)
+    >>> m.AC
+    3
+    >>> m.R
+    1
+ 
+    >>> m.AC = -7
+    >>> executar('DIV', 2, IMEDIATO)
+    >>> m.AC
+    -3
+    >>> m.R
+    -1
+ 
+    >>> executar('DIV', 0, IMEDIATO)
+    Erro: divisao por zero!
+ 
+    >>> executar('JUMP', 0xB5, DIRETO)
+    >>> m.PC
+    181
+ 
+    >>> m.N = 0
+    >>> m.PC = 0
+    >>> executar('JUMP+', 0x10, DIRETO)
+    >>> m.PC
+    16
+ 
+    >>> m.N = 1
+    >>> m.PC = 5
+    >>> executar('JUMP+', 0x10, DIRETO)
+    >>> m.PC
+    5
+ 
+    >>> m.MEM[0x20] = 0x30
+    >>> m.MEM[0x30] = 99
+    >>> executar('LOADI', 0x20, DIRETO)
+    >>> m.AC
+    99
+ 
+    >>> m.AC = 55
+    >>> m.MEM[0x21] = 0x40
+    >>> executar('STORI', 0x21, DIRETO)
+    >>> m.MEM[0x40]
+    55
+ 
+    >>> m.AC = MAX_INT
+    >>> executar('ADD', 1, IMEDIATO)
+    >>> m.C
+    True
+ 
+    >>> executar('XYZ', None, None)
+    Opcode invalido: XYZ
+    '''
+
     global AC, M, R, C, N, Z, PC, MAR, MBR
 
     if opcode == 'LOAD':
@@ -204,7 +351,33 @@ def carregar_arquivo(arquivo):
       - Uma linha com o endereco inicial (ex: 0xA0)
       - Linhas de instrucoes a partir do endereco inicial
     Comentarios comecam com # e sao ignorados. Linhas vazias sao ignoradas.
+
+    >>> import tempfile, os, sys
+    >>> m = sys.modules[__name__]
+    >>> conteudo = "5\\n1\\n0xA0\\nLOAD M(0x07)\\n"
+    >>> f = tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False)
+    >>> _ = f.write(conteudo)
+    >>> f.close()
+    >>> carregar_arquivo(f.name)
+    [Parser] 2 dados carregados a partir de 0x00
+    [Parser] 1 instrucoes carregadas a partir de 0xA0
+    [Parser] PC inicial = 0xA0
+    True
+    >>> m.MEM[0]
+    5
+    >>> m.MEM[1]
+    1
+    >>> m.MEM[0xA0]
+    'LOAD M(0x07)'
+    >>> m.PC
+    160
+    >>> os.remove(f.name)
+ 
+    >>> carregar_arquivo("arquivo_que_nao_existe.txt")
+    Erro: Arquivo arquivo_que_nao_existe.txt nao encontrado!
+    False
     '''
+
     global PC
 
     try:
@@ -271,7 +444,21 @@ def carregar_arquivo(arquivo):
 
 
 def mostrar_registradores():
-    '''Exibe o estado atual de todos os registradores'''
+    '''Exibe o estado atual de todos os registradores
+ 
+    >>> import sys; m = sys.modules[__name__]
+    >>> m.PC=0xA1; m.IR="LOAD M(0x07)"; m.MAR=0x07; m.MBR=0
+    >>> m.AC=0; m.M=None; m.R=None; m.C=None; m.N=0; m.Z=1
+    >>> mostrar_registradores()
+    ==================== Registradores ====================
+     PC  = 0xA1          IR  = LOAD M(0x07)
+     MAR = 0x07          MBR = 0
+     AC  = 0             M   = None
+     R   = None          C   = None
+     N   = 0             Z   = 1
+    =======================================================
+    <BLANKLINE>
+    '''
     if MAR is not None:
         mar_str = '0x' + format(MAR, '02X')
     else:
@@ -289,7 +476,25 @@ def mostrar_registradores():
 
 
 def ciclo_de_busca():
-    '''Realiza o ciclo de busca: MAR<-PC, MBR<-MEM[MAR], IR<-MBR, PC<-PC+1'''
+    '''Realiza o ciclo de busca: 
+    MAR<-PC, 
+    MBR<-MEM[MAR], 
+    IR<-MBR, 
+    PC<-PC+1
+ 
+    >>> import sys; m = sys.modules[__name__]
+    >>> m.PC = 0xA0
+    >>> m.MEM[0xA0] = "LOAD M(0x07)"
+    >>> ciclo_de_busca()
+    >>> m.MAR
+    160
+    >>> m.MBR
+    'LOAD M(0x07)'
+    >>> m.IR
+    'LOAD M(0x07)'
+    >>> m.PC
+    161
+    '''
     global PC, IR, MAR, MBR
 
     MAR = PC
@@ -300,6 +505,14 @@ def ciclo_de_busca():
 # LACO PRINCIPAL
 
 def main():
+    '''Laco principal do simulador: pede o arquivo, carrega o programa e
+    executa instrucao por instrucao ate o fim, mostrando os registradores
+    a cada passo (pausando em ENTER).
+ 
+    Nao possui doctest: depende de input() interativo e de um arquivo real
+    no disco. Testado manualmente executando `python3 ciclo.py`.
+    '''
+    
     arquivo = input('Qual arquivo a ser executado?\n>>> ')
     if not carregar_arquivo(arquivo):
         return
