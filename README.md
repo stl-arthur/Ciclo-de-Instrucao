@@ -1,5 +1,4 @@
 # Trabalho da Diciplina de Arquidetura e Organização de Computadores I
------------------------------------------------------------------------------------
 SIMULADOR DE CICLO DE INSTRUCAO - ARQUITETURA IAS
 Arquitetura e Organizacao de Computadores - Prof. Rodrigo Calvo
 -----------------------------------------------------------------------------------
