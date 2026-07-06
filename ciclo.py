@@ -169,6 +169,10 @@ def executar(opcode, operando, modo):
         # Desvio condicional: salta se AC >= 0 (N == 0)
         if N == 0:
             PC = operando
+    elif opcode == 'JUMPZ':
+        # Desvio condicional: salta se AC == 0 (Z == 1)
+        if Z == 1:
+            PC = operando
 
     elif opcode == 'LOADI':
         # Enderecamento indireto: operando aponta para celula que contem o endereco final
