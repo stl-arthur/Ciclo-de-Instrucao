@@ -1,4 +1,4 @@
-
+# DISCENTES: Arthur Henrique da Silva RA144346 - Cintia da Silva Bulcão RA145107 - Giovana da Silva Bulcão RA144325
 # Vetor de Memoria (256 posicoes)
 MEM = [None] * 256
 
